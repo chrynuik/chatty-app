@@ -4,59 +4,71 @@ import MessageList from './MessageList.jsx';
 
 
 
+
 class App extends Component {
 
 
 
   constructor(props) {
     super(props);
+
+
+    // this.state = {messages: []};
+
     this.newMessage = this.newMessage.bind(this)
+    this.userNameChange = this.userNameChange.bind(this)
     this.state = {
       loading: false,
-      currentUser: {name: "Bob"}, // optional. if currentUser is not defined, it means the user is Anonymous
-      messages: [
-        {
-          id: "1",
-          username: "Bob",
-          content: "Has anyone seen my marbles?",
-        },
-        {
-          id: "2",
-          username: "Anonymous",
-          content: "No, I think you lost them. You lost your marbles Bob. You lost them for good."
-        }
-      ]
+      currentUser: {name: "Anonymous"}, // optional. if currentUser is not defined, it means the user is Anonymous
+      messages: []
     };
 
   }
 
   componentDidMount(){
-    setTimeout(() =>{
-     // console.log("Simulating incomming message");
-      const newMessage = {id: 3, username: "Michelle", content: "Hello there!"};
-      const messages = this.state.messages.concat(newMessage)
+      this.socket = new WebSocket("ws://localhost:3001");
+
+      this.socket.addEventListener('message', (msg) => {
+        //console.log(msg.data);
+        this.setState({messages: this.state.messages.concat(JSON.parse(msg.data))});
+
+      });
+      // const newMessage = {id: 3, username: "Michelle", content: "Hello there!"};
+      // const messages = this.state.messages.concat(newMessage)
       this.setState({
         loading: true,
-        messages: messages
+        //messages: messages
       })
 
+      this.socket.onopen = (event) => {
+        console.log("socket is open");
+      }
 
-
-    }, 3000)
   }
+
+  componentWillUnMount(){
+    this.wss.close();
+  }
+
   newMessage(message){
-    const newId = this.state.messages.length + 1;
-    const newMessage = {
-      id: newId,
+    let newMessage = {
       username: this.state.currentUser.name,
       content: message
     }
-    const messages = this.state.messages.concat(newMessage)
-    //add new message like timeout above
-    this.setState({
-      messages: messages
-    })
+
+    const messages = this.state.messages.concat(newMessage);
+
+    this.socket.send(JSON.stringify(newMessage));
   }
+  userNameChange(username){
+    let newUsername = {name: username};
+
+    this.setState({currentUser: newUsername});
+    //console.log(currentUser);
+
+    //this.socket.send(JSON.stringify(currentUser));
+  }
+
   render() {
     if (this.state.loading) {
       return (
@@ -64,8 +76,8 @@ class App extends Component {
           <nav className="navbar">
             <a href="/" className="navbar-brand">Chatty</a>
           </nav>
-          <MessageList messages={this.state.messages}/>
-          <ChatBar onNewMessage={this.newMessage} currentUser={this.state.currentUser.name}/>
+          <MessageList  messages={this.state.messages}/>
+          <ChatBar onNewMessage={this.newMessage} onUserNameChange={this.userNameChange} />
         </div>
       );
     } else {

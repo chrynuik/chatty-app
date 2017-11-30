@@ -6,7 +6,7 @@ class MessageList extends React.Component {
 
     const messages = this.props.messages
     const message = messages.map((message) =>
-      <Message messageContent={message.content} messageUsername={message.username} key={message.id}/>
+      <Message messageContent={message.content} messageUsername={message.username} key={message.key}/>
 
     );
     return(
