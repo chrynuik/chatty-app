@@ -6,12 +6,12 @@ class ChatBar extends React.Component {
       super(props);
       this.onMessageInput = this.onMessageInput.bind(this)
       this.onUserNameFocus = this.onUserNameFocus.bind(this)
+      console.log(this.props.currentUser.name);
     }
 
   onUserNameFocus(event){
-
     this.props.onUserNameChange(event.target.value);
-
+    console.log("name change happened", event.target.value)
   }
   onMessageInput(event){
     if (event.charCode == 13) {
@@ -23,7 +23,7 @@ class ChatBar extends React.Component {
   render(){
     return(
       <footer className="chatbar">
-        <input className="chatbar-username" placeholder="Your Name (Optional)" defaultValue={this.props.currentUser} onBlur={this.onUserNameFocus}/>
+        <input className="chatbar-username" placeholder="Your Name (Optional)" defaultValue={this.props.currentUser.name} onBlur={this.onUserNameFocus}/>
         <input className="chatbar-message" placeholder="Type a message and hit ENTER" onKeyPress={this.onMessageInput}/>
       </footer>
     );

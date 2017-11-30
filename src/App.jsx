@@ -30,11 +30,27 @@ class App extends Component {
 
       this.socket.addEventListener('message', (msg) => {
         //console.log(msg.data);
-        this.setState({messages: this.state.messages.concat(JSON.parse(msg.data))});
+        let parseData = JSON.parse(msg.data);
+        let content = parseData.content
+        this.setState({messages: this.state.messages.concat(parseData)});
+        console.log(parseData);
+        switch(parseData.type) {
+          case "incomingMessage":
+            // handle incoming message
+             console.log("New post!")
+
+            break;
+          case "incomingNotification":
+
+            console.log(`${parseData.username} has changed their name to ${this.state.currentUser.name}.`)
+            break;
+          default:
+            // show an error in the console if the message type is unknown
+            throw new Error("Unknown event type " + data.type);
+        }
 
       });
-      // const newMessage = {id: 3, username: "Michelle", content: "Hello there!"};
-      // const messages = this.state.messages.concat(newMessage)
+
       this.setState({
         loading: true,
         //messages: messages
@@ -52,21 +68,27 @@ class App extends Component {
 
   newMessage(message){
     let newMessage = {
+      type: "postMessage",
       username: this.state.currentUser.name,
       content: message
     }
-
     const messages = this.state.messages.concat(newMessage);
-
     this.socket.send(JSON.stringify(newMessage));
   }
   userNameChange(username){
     let newUsername = {name: username};
-
-    this.setState({currentUser: newUsername});
-    //console.log(currentUser);
-
-    //this.socket.send(JSON.stringify(currentUser));
+    let contentString = `${this.state.currentUser.name} has changed their name to ${username}.`;
+    console.log("i am a console log", contentString);
+    let newNotification = {
+      type: "postNotification",
+      content: contentString
+    }
+    this.socket.send(JSON.stringify(newNotification));
+    this.setState({
+      // type: "postNotification",
+      currentUser: newUsername,
+      content : contentString
+    });
   }
 
   render() {
@@ -77,7 +99,7 @@ class App extends Component {
             <a href="/" className="navbar-brand">Chatty</a>
           </nav>
           <MessageList  messages={this.state.messages}/>
-          <ChatBar onNewMessage={this.newMessage} onUserNameChange={this.userNameChange} />
+          <ChatBar currentUser={this.state.currentUser} onNewMessage={this.newMessage} onUserNameChange={this.userNameChange} />
         </div>
       );
     } else {
