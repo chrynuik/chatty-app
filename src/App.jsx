@@ -36,7 +36,7 @@ class App extends Component {
         console.log(parseData);
         switch(parseData.type) {
           case "incomingMessage":
-            // handle incoming message
+
              console.log("New post!")
 
             break;
