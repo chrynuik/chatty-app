@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import ChatBar from './ChatBar.jsx';
 import MessageList from './MessageList.jsx';
+import OnlineUsers from './OnlineUsers.jsx';
 
 
 
@@ -20,7 +21,8 @@ class App extends Component {
     this.state = {
       loading: false,
       currentUser: {name: "Anonymous"}, // optional. if currentUser is not defined, it means the user is Anonymous
-      messages: []
+      messages: [],
+      numUser: 1
     };
 
   }
@@ -31,22 +33,22 @@ class App extends Component {
       this.socket.addEventListener('message', (msg) => {
         //console.log(msg.data);
         let parseData = JSON.parse(msg.data);
-        let content = parseData.content
-        this.setState({messages: this.state.messages.concat(parseData)});
-        console.log(parseData);
-        switch(parseData.type) {
-          case "incomingMessage":
+        let content = parseData.content;
+         console.log("this is parsed data", parseData);
 
-             console.log("New post!")
+        if (parseData.type === "incomingMessage" || parseData.type === "incomingNotification") {
+          this.setState({
+            messages: this.state.messages.concat(parseData),
+          });
 
-            break;
-          case "incomingNotification":
+        } else if (parseData.type === "NumberOnlineUsers"){
+           console.log("NumberOnlineUsers type passed");
+          this.setState({
 
-            console.log(`${parseData.username} has changed their name to ${this.state.currentUser.name}.`)
-            break;
-          default:
-            // show an error in the console if the message type is unknown
-            throw new Error("Unknown event type " + data.type);
+            numUser: parseData.numUser
+          })
+        } else {
+          throw new Error("Unknown event type " + parseData.type);
         }
 
       });
@@ -78,7 +80,6 @@ class App extends Component {
   userNameChange(username){
     let newUsername = {name: username};
     let contentString = `${this.state.currentUser.name} has changed their name to ${username}.`;
-    console.log("i am a console log", contentString);
     let newNotification = {
       type: "postNotification",
       content: contentString
@@ -92,11 +93,14 @@ class App extends Component {
   }
 
   render() {
+
     if (this.state.loading) {
+      console.log("is this what i'm looking for? ",this.state.numUser);
       return (
         <div>
           <nav className="navbar">
             <a href="/" className="navbar-brand">Chatty</a>
+            <OnlineUsers onlineUsers={this.state.numUser}/>
           </nav>
           <MessageList  messages={this.state.messages}/>
           <ChatBar currentUser={this.state.currentUser} onNewMessage={this.newMessage} onUserNameChange={this.userNameChange} />

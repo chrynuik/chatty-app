@@ -11,7 +11,6 @@ class ChatBar extends React.Component {
 
   onUserNameFocus(event){
     this.props.onUserNameChange(event.target.value);
-    console.log("name change happened", event.target.value)
   }
   onMessageInput(event){
     if (event.charCode == 13) {

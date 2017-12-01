@@ -74,6 +74,7 @@ h1 {
   position: fixed;
   right: 0;
   top: 0;
+  overflow: hidden;
 }
 
 .navbar-brand {
@@ -86,4 +87,10 @@ h1 {
   line-height: 60px;
   padding: 0 10px;
   text-decoration: none;
+}
+.onlineUsers {
+  float: right;
+  padding: 0 10px;
+  font-size: 1.08em;
+  margin-top: 22px;
 }
