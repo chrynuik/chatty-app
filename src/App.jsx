@@ -8,16 +8,11 @@ import OnlineUsers from './OnlineUsers.jsx';
 
 class App extends Component {
 
-
-
   constructor(props) {
     super(props);
 
-
-    // this.state = {messages: []};
-
-    this.newMessage = this.newMessage.bind(this)
-    this.userNameChange = this.userNameChange.bind(this)
+    this.newMessage = this.newMessage.bind(this);
+    this.userNameChange = this.userNameChange.bind(this);
     this.state = {
       loading: false,
       currentUser: {name: "Anonymous"}, // optional. if currentUser is not defined, it means the user is Anonymous
@@ -31,22 +26,20 @@ class App extends Component {
       this.socket = new WebSocket("ws://localhost:3001");
 
       this.socket.addEventListener('message', (msg) => {
-        //console.log(msg.data);
+
         let parseData = JSON.parse(msg.data);
         let content = parseData.content;
-         console.log("this is parsed data", parseData);
 
+        //pass data when user sends a message
         if (parseData.type === "incomingMessage" || parseData.type === "incomingNotification") {
           this.setState({
             messages: this.state.messages.concat(parseData),
           });
-
+          //pass data when user comes or goes offline
         } else if (parseData.type === "NumberOnlineUsers"){
-           console.log("NumberOnlineUsers type passed");
           this.setState({
-
             numUser: parseData.numUser
-          })
+          });
         } else {
           throw new Error("Unknown event type " + parseData.type);
         }
@@ -55,12 +48,11 @@ class App extends Component {
 
       this.setState({
         loading: true,
-        //messages: messages
-      })
+      });
 
       this.socket.onopen = (event) => {
         console.log("socket is open");
-      }
+      };
 
   }
 
@@ -68,25 +60,26 @@ class App extends Component {
     this.wss.close();
   }
 
-  newMessage(message){
+  //function for adding a new message
+  newMessage(message) {
     let newMessage = {
       type: "postMessage",
       username: this.state.currentUser.name,
       content: message
-    }
+    };
     const messages = this.state.messages.concat(newMessage);
     this.socket.send(JSON.stringify(newMessage));
   }
-  userNameChange(username){
+  //function for chaning username
+  userNameChange(username) {
     let newUsername = {name: username};
     let contentString = `${this.state.currentUser.name} has changed their name to ${username}.`;
     let newNotification = {
       type: "postNotification",
       content: contentString
-    }
+    };
     this.socket.send(JSON.stringify(newNotification));
     this.setState({
-      // type: "postNotification",
       currentUser: newUsername,
       content : contentString
     });
@@ -95,7 +88,6 @@ class App extends Component {
   render() {
 
     if (this.state.loading) {
-      console.log("is this what i'm looking for? ",this.state.numUser);
       return (
         <div>
           <nav className="navbar">
@@ -108,9 +100,7 @@ class App extends Component {
       );
     } else {
       return <h1>Loading...</h1>
-
-  }
-
+    }
   }
 }
 export default App;

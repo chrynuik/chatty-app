@@ -6,7 +6,6 @@ class ChatBar extends React.Component {
       super(props);
       this.onMessageInput = this.onMessageInput.bind(this)
       this.onUserNameFocus = this.onUserNameFocus.bind(this)
-      console.log(this.props.currentUser.name);
     }
 
   onUserNameFocus(event){
